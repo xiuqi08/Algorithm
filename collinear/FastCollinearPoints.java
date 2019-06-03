@@ -26,11 +26,16 @@ public class FastCollinearPoints {
                 }
                 Comparator<Point> cmp = points[i].slopeOrder();
                 Arrays.sort(tmp, cmp);
-                for (int j = 0; j < tmp.length; j++) {
+                for (int j = 0; j < (tmp.length -2); j++) {
                     if ((points[i].slopeTo(tmp[j]) == points[i].slopeTo(tmp[j + 1])) && (
-                            points[i].slopeTo(tmp[j]) == points[i].slopeTo(tmp[j + 2])) && (
-                            points[i].slopeTo(tmp[j]) != points[i].slopeTo(tmp[j + 3]))) {
-                        copy.add(new LineSegment(points[i], tmp[i + 2]));
+                            points[i].slopeTo(tmp[j]) == points[i].slopeTo(tmp[j + 2]))) {
+                        if (j < tmp.length -3) {
+                            if (points[i].slopeTo(tmp[j]) != points[i].slopeTo(tmp[j + 3])){
+                                copy.add(new LineSegment(points[i], tmp[j + 2]));
+                            }
+                        else {
+                            copy.add(new LineSegment(points[i], tmp[j + 2]));
+                        }
                     }
                 }
             }
