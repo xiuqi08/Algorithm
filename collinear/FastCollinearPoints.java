@@ -10,9 +10,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class FastCollinearPoints {
-    private List<LineSegment> copy = new ArrayList<LineSegment>();
-    private LineSegment[] res;
-
+    private List<LineSegment> res = new ArrayList<LineSegment>();
+    
     public FastCollinearPoints(Point[] points) {
         if (points == null) {
             throw new java.lang.IllegalArgumentException("Points are null");
@@ -21,7 +20,7 @@ public class FastCollinearPoints {
             for (int i = 0; i < points.length; i++) {
                 Point[] tmp = new Point[points.length - 1];
                 int k = 0;
-                for (int j = 0; j < points.length && j != i; j++) {
+                for (int j = i+1; j < points.length; j++) {
                     tmp[k++] = points[k];
                 }
                 Comparator<Point> cmp = points[i].slopeOrder();
@@ -31,10 +30,10 @@ public class FastCollinearPoints {
                             points[i].slopeTo(tmp[j]) == points[i].slopeTo(tmp[j + 2]))) {
                         if (j < tmp.length -3) {
                             if (points[i].slopeTo(tmp[j]) != points[i].slopeTo(tmp[j + 3])){
-                                copy.add(new LineSegment(points[i], tmp[j + 2]));
+                                res.add(new LineSegment(points[i], tmp[j + 2]));
                             }
                         else {
-                            copy.add(new LineSegment(points[i], tmp[j + 2]));
+                            res.add(new LineSegment(points[i], tmp[j + 2]));
                         }
                     }
                 }
@@ -43,15 +42,10 @@ public class FastCollinearPoints {
     } // finds all line segments containing 4 points
 
     public int numberOfSegments() {
-        return copy.size();
+        return res.size();
     } // the number of line segments
 
     public LineSegment[] segments() {
-        res = new LineSegment[copy.size()];
-        int i = 0;
-        for (LineSegment t : copy) {
-            res[i++] = t;
-        }
-        return res;
+        return res.toArray(new LineSegment[res.size()]);
     } // the line segments
 }
