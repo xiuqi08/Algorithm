@@ -6,67 +6,69 @@
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.ArrayList;
-
 public class Solver {
-    private int m;
-    private int tm;
     private boolean solvable;
-    private final ArrayList<Board> res = new ArrayList<Board>();
+    private SearchNode goal;
 
     private class SearchNode implements Comparable<SearchNode> {
         private int move = 0;
-        private Board predecessor = null;
+        private SearchNode predecessor = null;
         private final Board board;
-        private final int priority;
+        private int priority;
 
         public SearchNode(Board board) {
             this.board = board;
-            priority = board.manhattan() + move;
+            priority = board.manhattan();
         }
 
-        public void addpredecessor(Board pboard) {
-            predecessor = pboard;
+        public void addpredecessor(SearchNode psn) {
+            predecessor = psn;
         }
 
         public int compareTo(SearchNode that) {
-            return Integer.compare(this.priority, that.priority);
+            return Integer.compare(this.priority + this.move, that.priority + that.move);
         }
     }
 
     public Solver(Board initial) {
+        if (initial == null) throw new java.lang.IllegalArgumentException("Null board");
         MinPQ<SearchNode> mpq = new MinPQ<SearchNode>();
         MinPQ<SearchNode> tpq = new MinPQ<SearchNode>();
         mpq.insert(new SearchNode(initial));
         tpq.insert(new SearchNode(initial.twin()));
         while (!mpq.isEmpty() && !tpq.isEmpty()) {
             SearchNode sn = mpq.delMin();
-            res.add(sn.board);
+            // System.out.println(sn.board.toString());
             if (sn.board.isGoal()) {
                 solvable = true;
+                goal = sn;
                 break;
             }
-            m++;
             for (Board ngh : sn.board.neighbors()) {
-                SearchNode nsn = new SearchNode(ngh);
-                nsn.addpredecessor(sn.board);
-                nsn.move = m;
-                if (!nsn.board.equals(sn.predecessor)) mpq.insert(nsn);
+                if (sn.predecessor == null || !ngh.equals(sn.predecessor.board)) {
+                    SearchNode nsn = new SearchNode(ngh);
+                    nsn.addpredecessor(sn);
+                    nsn.move = sn.move + 1;
+                    mpq.insert(nsn);
+                }
             }
 
             SearchNode tsn = tpq.delMin();
+            // System.out.println(tsn.board.toString());
             if (tsn.board.isGoal()) {
                 solvable = false;
                 break;
             }
-            tm++;
-            for (Board ngh : tsn.board.neighbors()) {
-                SearchNode nsn = new SearchNode(ngh);
-                nsn.addpredecessor(tsn.board);
-                nsn.move = tm;
-                if (!nsn.board.equals(tsn.predecessor)) tpq.insert(nsn);
+            for (Board b : tsn.board.neighbors()) {
+                if (tsn.predecessor == null || !b.equals(tsn.predecessor.board)) {
+                    SearchNode nsn = new SearchNode(b);
+                    nsn.addpredecessor(tsn);
+                    nsn.move = tsn.move + 1;
+                    tpq.insert(nsn);
+                }
             }
         }
     } // find a solution to the initial board (using the A* algorithm)
@@ -76,12 +78,16 @@ public class Solver {
     } // is the initial board solvable?
 
     public int moves() {
-        if (isSolvable()) return m;
+        if (isSolvable()) return goal.move;
         else return -1;
     } // min number of moves to solve initial board; -1 if unsolvable
 
     public Iterable<Board> solution() {
-        if (isSolvable()) return res;
+        if (isSolvable()) {
+            Stack<Board> res = new Stack<Board>();
+            for (SearchNode i = goal; i != null; i = i.predecessor) res.push(i.board);
+            return res;
+        }
         else return null;
     } // sequence of boards in a shortest solution; null if unsolvable
 
