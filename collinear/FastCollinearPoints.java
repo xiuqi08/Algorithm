@@ -13,8 +13,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class FastCollinearPoints {
+<<<<<<< HEAD
     private final ArrayList<LineSegment> res = new ArrayList<LineSegment>();
 
+=======
+    private List<LineSegment> res = new ArrayList<LineSegment>();
+    
+>>>>>>> 4c7fa5e046af49ed9d071976e9c3f0b05a3e1f8e
     public FastCollinearPoints(Point[] points) {
         if (points == null) {
             throw new java.lang.IllegalArgumentException("Points are null");
@@ -23,6 +28,7 @@ public class FastCollinearPoints {
             Arrays.sort(points);
             checkPoints(points);
             for (int i = 0; i < points.length; i++) {
+<<<<<<< HEAD
                 Point[] tmp = new Point[points.length - i - 1];
                 for (int j = i + 1; j < points.length; j++) {
                     tmp[j - i - 1] = points[j];
@@ -37,6 +43,25 @@ public class FastCollinearPoints {
                                 res.add(new LineSegment(points[i], tmp[j + 2]));
                         }
                         else res.add(new LineSegment(points[i], tmp[j + 2]));
+=======
+                Point[] tmp = new Point[points.length - 1];
+                int k = 0;
+                for (int j = i+1; j < points.length; j++) {
+                    tmp[k++] = points[k];
+                }
+                Comparator<Point> cmp = points[i].slopeOrder();
+                Arrays.sort(tmp, cmp);
+                for (int j = 0; j < (tmp.length -2); j++) {
+                    if ((points[i].slopeTo(tmp[j]) == points[i].slopeTo(tmp[j + 1])) && (
+                            points[i].slopeTo(tmp[j]) == points[i].slopeTo(tmp[j + 2]))) {
+                        if (j < tmp.length -3) {
+                            if (points[i].slopeTo(tmp[j]) != points[i].slopeTo(tmp[j + 3])){
+                                res.add(new LineSegment(points[i], tmp[j + 2]));
+                            }
+                        else {
+                            res.add(new LineSegment(points[i], tmp[j + 2]));
+                        }
+>>>>>>> 4c7fa5e046af49ed9d071976e9c3f0b05a3e1f8e
                     }
                 }
             }
